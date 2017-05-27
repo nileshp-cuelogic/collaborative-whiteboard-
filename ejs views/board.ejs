@@ -7,9 +7,10 @@
 <style>
     canvas {
         background-color: #c3c3c3;
-        width: 100%;
-        height: 50%;
+        width: 300;
+        height: 300;
         border: 1px solid blue;
+        cursor: crosshair;
     }
 </style>
 
@@ -30,73 +31,53 @@
                     <div id="adcontainer" style="overflow:hidden;text-align:left;">
                         <h4 style="padding:0 10px; margin: 1px 0;">Choose pen color</h4>
                         <p>
-                            <button type="button" onclick="SetColor('#DDDDDD')" class="btn"></button>
-                            <button type="button" onclick="SetColor('#286090')" class="btn btn-primary"></button>
-                            <button type="button" onclick="SetColor('#449D44')" class="btn btn-success"></button>
-                            <button type="button" onclick="SetColor('#31B0D5')" class="btn btn-info"></button>
-                            <button type="button" onclick="SetColor('#EC971F')" class="btn btn-warning"></button>
-                            <button type="button" onclick="SetColor('#C9302C')" class="btn btn-danger"></button>
+                            <button type="button" onclick="SetStrokeStyle('#DDDDDD')" class="btn"></button>
+                            <button type="button" onclick="SetStrokeStyle('#286090')" class="btn btn-primary"></button>
+                            <button type="button" onclick="SetStrokeStyle('#449D44')" class="btn btn-success"></button>
+                            <button type="button" onclick="SetStrokeStyle('#31B0D5')" class="btn btn-info"></button>
+                            <button type="button" onclick="SetStrokeStyle('#EC971F')" class="btn btn-warning"></button>
+                            <button type="button" onclick="SetStrokeStyle('#C9302C')" class="btn btn-danger"></button>
+
+                            <button id="share" onclick="Share()" class="btn btn-danger">Share</button>
                         </p>
-                        </a>
                     </div>
                     <div class="row">
                         <div class="col-sm-3 col-md-6 col-lg-8">
-                            <canvas id="myCanvas">
-                                Your browser does not support the canvas element.
-                            </canvas>
+                            <label for="username">Enter your name:</label>
+                            <div class="input-group">
+                                <input type="text" id="chatMessage" class="form-control">
+                                <span class="input-group-btn">
+                                  <button class="btn btn-primary" onclick="Send()" type="button">Go!</button>
+                                </span>
+                            </div>
                         </div>
                         <div class="col-sm-3 col-md-6 col-lg-4">
                             <div class="panel panel-danger">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Connected Users</h3>
                                 </div>
-                                <div class="panel-body"></div>
+                                <div class="panel-body">
+                                    <ul>
+                                        <% connectedUsers.forEach(function(val){ %>
+                                            <li>
+                                                <%= val %>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        Hello
-        <button id="share" onclick="Share()">Share</button><br/> Joined Users
-        <div>
-            <ul id="joinedUsers">
-            </ul>
-        </div>
+    </div>
 
-        Type ur message:<br/>
-        <input type="text" id="chatMessage">
+    <canvas id="myCanvas">
+        Your browser does not support the canvas element.
+    </canvas>
+    <% include partialviews/scripts.ejs %>
 
-        </textarea>
-        <button id="send" onclick="Send()">Send</button><br/>
-        <% include partialviews/scripts.ejs %>
-
-
-        <script>
-            var socket = io();
-            var host = "ffff";
-            socket.on('message-from-server', function (data) {
-                document.getElementById('chatMessage').value = data.message;
-
-                // socket.emit('message-from-client', {
-                //     message: "Hello from client"
-                // });
-            });
-
-            socket.on("host-name", function (data) {
-                host = data.hostName + "//dsdsdsd";
-            })
-
-            function Share() {
-                alert(host)
-            }
-
-            function Send() {
-                socket.emit('message-from-client', {
-                    message: document.getElementById('chatMessage').value
-                });
-            };
-        </script>
 </body>
 
 </html>

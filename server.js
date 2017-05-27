@@ -6,40 +6,43 @@ var init = require('./init');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var connectedUsers = [];
+
+
 app.get('/', function (req, res) {
     res.render('join', {
         title: '',
     });
 });
 
+
+
 app.post('/board', function (req, res) {
+    connectedUsers.push(req.body.username);
     res.render('board', {
         title: ' To collaborative white board',
-        username:req.body.username,
+        username: req.body.username,
+        connectedUsers: connectedUsers
     });
     //res.sendFile(__dirname + '/public/board.html');
 });
 
-app.get('/:id', function (req, res) {
-    res.sendFile(__dirname + '/public/index.html');
-});
+// app.get('/:id', function (req, res) {
+//     res.sendFile(__dirname + '/public/index.html');
+// });
 
 io.on('connection', function (socket) {
-    //console.log(socket.handshake.headers.host);
-
-    socket.emit('message-from-server', {
-        message: "Welcome " + socket.id
-    });
+    
+    // socket.emit('message-from-server', {
+    //     message: "Welcome " + socket.id
+    // });
 
     socket.emit("host-name", {
         hostName: socket.handshake.headers.host
     });
 
-    socket.on('message-from-client', function (data) {
-
-        io.emit('message-from-server', {
-            message: data.message
-        });
+    socket.on('draw-from-client', function (data) {
+        io.emit('draw-from-server', data);
     });
 });
 

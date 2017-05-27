@@ -65,8 +65,7 @@
 
 
         function redraw() {
-            //context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
-            console.log(this.strokeStyle);
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
             context.strokeStyle = this.strokeStyle; // "#df4b26";
             context.lineJoin = "round";
             context.lineWidth = 5;
