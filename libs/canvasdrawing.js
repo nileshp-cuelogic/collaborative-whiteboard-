@@ -1,19 +1,4 @@
-<!DOCTYPE html>
-<html>
-
-<body>
-    <button id="red" onclick="SetStrokeStyle('red')">Red</button>
-    <button id="green" onclick="SetStrokeStyle('green')">Green</button>
-    <button id="blue" onclick="SetStrokeStyle('blue')">Blue</button>
-    <br/>
-    <canvas id="myCanvas" width="500" height="500" style="border:1px solid #c3c3c3;">
-        Your browser does not support the canvas element.
-    </canvas>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>
-    <script>
-        //prepare canvas
-        var canvas = document.getElementById("myCanvas");
+var canvas = document.getElementById("myCanvas");
         var context = canvas.getContext("2d");
         context.fillStyle = "#FF0000";
 
@@ -89,8 +74,3 @@
             clickY.push(y);
             clickDrag.push(dragging);
         }
-    </script>
-
-</body>
-
-</html>
