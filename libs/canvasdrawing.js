@@ -2,6 +2,7 @@ var socket = io();
 var host = "";
 socket.on('draw-from-server', function (data) {
 
+
     ServerDraw(
         data.clickX,
         data.clickY,
@@ -16,8 +17,8 @@ socket.on('draw-from-server', function (data) {
     // });
 });
 
-socket.on("host-name", function (data) {
-    host = data.hostName + "//dsdsdsd";
+socket.on("join-url", function (data) {
+    host = data.joinURL;
 })
 
 function Share() {
@@ -31,8 +32,19 @@ function Send() {
 };
 
 
+socket.on("new-user-connected", function (data) {
+    $("#connectedUsers").html("");
+    data.forEach(function(element) {
+        $("#connectedUsers").append("<li>"+element.username+"</li>")    
+    }, this);
+})
 
-
+socket.on("user-disconnected", function (data) {
+    $("#connectedUsers").html("");
+    data.forEach(function(element) {
+        $("#connectedUsers").append("<li>"+element.username+"</li>")    
+    }, this);
+})
 
 //prepare canvas
 var canvas = document.getElementById("myCanvas");
@@ -72,7 +84,7 @@ $('#myCanvas').mousemove(function (e) {
 });
 
 $('#myCanvas').mouseup(function (e) {
-    
+
     paint = false;
     clickX = new Array();
     clickY = new Array();
@@ -80,7 +92,7 @@ $('#myCanvas').mouseup(function (e) {
 });
 
 $('#myCanvas').mouseleave(function (e) {
-    
+
     paint = false;
     clickX = new Array();
     clickY = new Array();
@@ -106,6 +118,8 @@ function redraw() {
         context.stroke();
     }
 
+
+
     socket.emit('draw-from-client', {
         clickX: clickX,
         clickY: clickY,
@@ -123,7 +137,7 @@ function ServerDraw(recClickX, recClickY, recClickDrag, recStrokeStyle) {
 
     for (var i = 0; i < recClickX.length; i++) {
         context.beginPath();
-        if (clickDrag[i] && i) {
+        if (recClickDrag[i] && i) {
             context.moveTo(recClickX[i - 1], recClickY[i - 1]);
         } else {
             context.moveTo(recClickX[i] - 1, recClickY[i]);
