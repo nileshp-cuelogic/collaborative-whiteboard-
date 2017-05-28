@@ -39,7 +39,15 @@
                             <button type="button" onclick="SetStrokeStyle('#C9302C')" class="btn btn-danger"></button>
 
                             <button id="share" onclick="Share()" class="btn btn-danger">Share</button>
+                            <button id="clearcanvas" onclick="ClearCanvas()" class="btn btn-danger">Clear Canvas</button>
+                            <button id="undocanvas" onclick="UndoCanvas()" class="btn btn-danger">Undo Canvas</button>
+
+
+                            <input type="radio" name="painteraser" checked="checked" id="paint" value="Paint" onclick="SetContextProperties('paint')">                            Paint
+                            <input type="radio" name="painteraser" id="eraser" value="Eraser" onclick="SetContextProperties('erase')">                            Eraser
+
                         </p>
+                        
                     </div>
                     <div class="row">
                         <div class="col-sm-3 col-md-6 col-lg-8">
@@ -58,7 +66,7 @@
                                 </div>
                                 <div class="panel-body">
                                     <ul id="connectedUsers">
-                                      
+
                                     </ul>
                                 </div>
                             </div>

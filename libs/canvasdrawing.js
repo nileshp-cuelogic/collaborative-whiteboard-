@@ -1,48 +1,29 @@
 var socket = io();
-var host = "";
+var joinURL = "";
+
 socket.on('draw-from-server', function (data) {
+    DrawOnClientCanvas(data.clickX, data.clickY, data.clickDrag, data.strokeStyle, data.lineWidth)
+});
 
-
-    ServerDraw(
-        data.clickX,
-        data.clickY,
-        data.clickDrag,
-        data.strokeStyle
-    )
-
-    // document.getElementById('chatMessage').value = data.message;
-
-    // socket.emit('message-from-client', {
-    //     message: "Hello from client"
-    // });
+socket.on('clear-the-canvas-from-server', function (data) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 });
 
 socket.on("join-url", function (data) {
-    host = data.joinURL;
+    joinURL = data.joinURL;
 })
-
-function Share() {
-    alert(host)
-}
-
-function Send() {
-    socket.emit('draw-from-client', {
-        message: document.getElementById('chatMessage').value
-    });
-};
-
 
 socket.on("new-user-connected", function (data) {
     $("#connectedUsers").html("");
-    data.forEach(function(element) {
-        $("#connectedUsers").append("<li>"+element.username+"</li>")    
+    data.forEach(function (element) {
+        $("#connectedUsers").append("<li>" + element.username + "</li>")
     }, this);
 })
 
 socket.on("user-disconnected", function (data) {
     $("#connectedUsers").html("");
-    data.forEach(function(element) {
-        $("#connectedUsers").append("<li>"+element.username+"</li>")    
+    data.forEach(function (element) {
+        $("#connectedUsers").append("<li>" + element.username + "</li>")
     }, this);
 })
 
@@ -60,12 +41,24 @@ var clickDrag = new Array();
 var paint;
 
 var strokeStyle = "red";
+var lineWidth = 5;
 
+function SetContextProperties(mode) {
+    if (mode === 'erase') {
+        this.strokeStyle = "#c3c3c3";
+        this.lineWidth = 10;
+        document.getElementById('myCanvas').style.cursor = "cell";
+    } else {
+        this.strokeStyle = "red";
+        this.lineWidth = 5;
+        document.getElementById('myCanvas').style.cursor = "crosshair";
+
+    }
+}
 
 function SetStrokeStyle(color) {
     this.strokeStyle = color;
 }
-//ctx.fillRect(0, 0, 150, 75);
 
 $('#myCanvas').mousedown(function (e) {
     var mouseX = e.pageX - this.offsetLeft;
@@ -73,38 +66,46 @@ $('#myCanvas').mousedown(function (e) {
 
     paint = true;
     addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-    redraw();
+    DrawOnCanvas();
 });
 
 $('#myCanvas').mousemove(function (e) {
     if (paint) {
         addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
-        redraw();
+        DrawOnCanvas();
     }
 });
 
 $('#myCanvas').mouseup(function (e) {
-
     paint = false;
-    clickX = new Array();
-    clickY = new Array();
-    clickDrag = new Array();
+    ClearDrawCoordinates();
 });
 
 $('#myCanvas').mouseleave(function (e) {
-
     paint = false;
+    ClearDrawCoordinates();
+});
+
+function ClearDrawCoordinates() {
+    
+    if (clickX.length > 0) {
+        socket.emit('maintain-history', {
+            clickX: clickX,
+            clickY: clickY,
+            clickDrag: clickDrag,
+            strokeStyle: this.strokeStyle,
+            lineWidth: this.lineWidth
+        });
+    }
     clickX = new Array();
     clickY = new Array();
     clickDrag = new Array();
-});
+}
 
-
-function redraw() {
-    //context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
-    context.strokeStyle = this.strokeStyle; // "#df4b26";
+function DrawOnCanvas() {
+    context.strokeStyle = this.strokeStyle;
     context.lineJoin = "round";
-    context.lineWidth = 5;
+    context.lineWidth = this.lineWidth;
 
     for (var i = 0; i < clickX.length; i++) {
         context.beginPath();
@@ -118,22 +119,20 @@ function redraw() {
         context.stroke();
     }
 
-
-
     socket.emit('draw-from-client', {
         clickX: clickX,
         clickY: clickY,
         clickDrag: clickDrag,
-        strokeStyle: this.strokeStyle
+        strokeStyle: this.strokeStyle,
+        lineWidth: this.lineWidth
     });
 }
 
 
-function ServerDraw(recClickX, recClickY, recClickDrag, recStrokeStyle) {
-    //context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+function DrawOnClientCanvas(recClickX, recClickY, recClickDrag, recStrokeStyle, recLineWidth) {
     context.strokeStyle = recStrokeStyle; // "#df4b26";
     context.lineJoin = "round";
-    context.lineWidth = 5;
+    context.lineWidth = recLineWidth;
 
     for (var i = 0; i < recClickX.length; i++) {
         context.beginPath();
@@ -149,9 +148,24 @@ function ServerDraw(recClickX, recClickY, recClickDrag, recStrokeStyle) {
 }
 
 function addClick(x, y, dragging) {
-    clickX.push(x);
-    clickY.push(y);
-    clickDrag.push(dragging);
+    if (x) {
+        clickX.push(x);
+
+        clickY.push(y);
+        clickDrag.push(dragging);
+    }
+}
+
+function Share() {
+    alert(joinURL)
 }
 
 
+function ClearCanvas() {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    socket.emit('clear-the-canvas', {});
+}
+
+function UndoCanvas() {
+    socket.emit('undo-canvas', {});
+}
