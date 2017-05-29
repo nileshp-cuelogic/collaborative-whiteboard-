@@ -30,7 +30,7 @@ app.get('/:key', function (req, res) {
 });
 
 app.post('/board', function (req, res) {
-    username = req.body.username
+    username = req.body.username;
     res.render('board', {
         title: ' To collaborative white board',
         username: req.body.username
@@ -69,6 +69,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('clear-the-canvas', function (data) {
+        drawingHistory = [];
         io.emit('clear-the-canvas-from-server', data);
     });
 

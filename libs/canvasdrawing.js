@@ -87,7 +87,7 @@ $('#myCanvas').mouseleave(function (e) {
 });
 
 function ClearDrawCoordinates() {
-    
+
     if (clickX.length > 0) {
         socket.emit('maintain-history', {
             clickX: clickX,
@@ -162,8 +162,11 @@ function Share() {
 
 
 function ClearCanvas() {
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    socket.emit('clear-the-canvas', {});
+    var confirmed = confirm('All data will be deleted permanently, Are you sure you want to do this?');
+    if (confirmed) {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        socket.emit('clear-the-canvas', {});
+    }
 }
 
 function UndoCanvas() {
