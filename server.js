@@ -8,7 +8,8 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var AppRoutes = require('./routes/routes');
 
-var username = "", joinUrl = "";
+var username = "",
+    joinUrl = "";
 var connectedUsers = [];
 
 var drawingHistory = [];
@@ -16,8 +17,9 @@ var drawingHistory = [];
 app.get('/', AppRoutes.Root);
 
 app.get('/:key', function (req, res) {
-    console.log("dd", connectedUsers)
-    if (_.some(connectedUsers, { "key": req.params.key })) {
+    if (_.some(connectedUsers, {
+            "key": req.params.key
+        })) {
         res.render('join', {
             title: '',
             invalid: false
@@ -51,7 +53,7 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         connectedUsers = _.filter(connectedUsers, function (item) {
             return item.id !== socket.id;
-        })
+        });
 
         io.emit("user-disconnected", connectedUsers);
     });
@@ -71,37 +73,48 @@ io.on('connection', function (socket) {
     });
 
     socket.on('maintain-history', function (data) {
-        if (!_.some(drawingHistory, { "id": socket.id })) {
+        if (!_.some(drawingHistory, {
+                "id": socket.id
+            })) {
             drawingHistory.push({
                 id: socket.id,
                 history: []
             });
         }
         var drawingHistoryItem = _.find(drawingHistory, function (item) {
-            return item.id === socket.id
+            return item.id === socket.id;
         });
         drawingHistoryItem.history.push({
-            data
+            data: data
         });
     });
 
     socket.on('undo-canvas', function (data) {
-        if (_.some(drawingHistory, { "id": socket.id })) {
+        if (_.some(drawingHistory, {
+                "id": socket.id
+            })) {
 
             var drawingHistoryItem = _.filter(drawingHistory, function (item) {
-                return item.id === socket.id
+                return item.id === socket.id;
             });
 
 
             var undoData = _.last(drawingHistoryItem[0].history)
 
             drawingHistoryItem[0].history.splice(-1);
+            io.emit('clear-the-canvas-from-server', {});
 
-            if (undoData) {
-                undoData.data.strokeStyle = "#c3c3c3"
-                undoData.data.lineWidth = 8
-                io.emit('draw-from-server', undoData.data);
-            }
+            drawingHistory.forEach(function (item) {
+                item.history.forEach(function (historyItem) {
+                    io.emit('draw-from-server', historyItem.data);
+                });
+            });
+
+            // if (undoData) {
+            //     undoData.data.strokeStyle = "#c3c3c3";
+            //     undoData.data.lineWidth = 8;
+            //     io.emit('draw-from-server', undoData.data);
+            // }
         }
 
     });
